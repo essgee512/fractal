@@ -7,13 +7,14 @@ import (
 )
 
 type Fractal struct {
-	Size   int
-	Center Point
-	Scale  float64
-	G      float64
-	N      int
-	Fmap   Fmap
-	Cmap   Cmap
+	Size    int
+	Center  Point
+	Scale   float64
+	PixSize int
+	G       float64
+	N       int
+	Fmap    Fmap
+	Cmap    Cmap
 
 	w      int
 	h      int
@@ -26,11 +27,12 @@ func NewFractal(cfg Fractal) Fractal {
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 
 	return Fractal{
-		Size:   cfg.Size,
-		Center: cfg.Center,
-		Scale:  cfg.Scale,
-		G:      cfg.G,
-		N:      cfg.N,
+		Size:    cfg.Size,
+		Center:  cfg.Center,
+		Scale:   cfg.Scale,
+		PixSize: cfg.PixSize,
+		G:       cfg.G,
+		N:       cfg.N,
 
 		Fmap: cfg.Fmap,
 		Cmap: cfg.Cmap,
@@ -81,7 +83,12 @@ func (f Fractal) render(p pixel) {
 		f.Fmap(complex(p.x, p.y), f),
 		f,
 	)
-	f.Img.SetNRGBA(p.k, p.l, color.NRGBA{r, g, b, a})
+
+	for i := 0; i < f.PixSize; i++ {
+		for j := 0; j < f.PixSize; j++ {
+			f.Img.SetNRGBA(p.k+i, p.l+j, color.NRGBA{r, g, b, a})
+		}
+	}
 }
 
 type Point struct {

@@ -27,38 +27,39 @@ var (
 )
 
 func main() {
-	// fractal := f.NewFractal(f.Fractal{
-	// 	Size: 300,
-	// 	Center: f.Point{0.0, 0.0},
-	// 	Scale: 1.0,
+	var fractal f.Fractal
+	var fp *os.File
+	var err error
 
-	// 	Fmap: f.Mandelbrot,
-	// 	Cmap: f.Bool,
-	// })
+	for ps := 1; ps <= 5; ps++ {
 
-	fractal := f.NewFractal(f.Fractal{
-		Size:   400,
-		Center: f.Point{0.0, 0.0},
-		Scale:  1.0,
-		G:      5.0,
-		N:      100,
-		Fmap:   f.Julia,
-		Cmap:   f.Bool,
-	})
+		fractal = f.NewFractal(f.Fractal{
+			Size:    400,
+			Center:  f.Point{0.0, 0.0},
+			Scale:   0.1,
+			PixSize: ps,
+			G:       2.0,
+			N:       100,
+			Fmap:    f.Julia,
+			Cmap:    f.Bool,
+		})
 
-	fractal.Render()
+		fractal.Render()
 
-	f, err := os.Create("output/image.png")
-	if err != nil {
-		log.Fatal(err)
+		fp, err = os.Create(fmt.Sprintf("output/psize-%d.png", ps))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err = png.Encode(fp, fractal.Img); err != nil {
+			fp.Close()
+			log.Fatal(err)
+		}
+
+		if err = fp.Close(); err != nil {
+			log.Fatal(err)
+		}
+
 	}
 
-	if err := png.Encode(f, fractal.Img); err != nil {
-		f.Close()
-		log.Fatal(err)
-	}
-
-	if err := f.Close(); err != nil {
-		log.Fatal(err)
-	}
 }
