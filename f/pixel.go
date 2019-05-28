@@ -19,8 +19,8 @@ func initPixels(f Fractal) pixels {
 	for k := 0; k < w; k++ {
 		for l := 0; l < h; l++ {
 			fk, fl := float64(k), float64(l)
-			x := s * ((3.0/fw)*fk + cx - 1.5) + cx
-			y := s * ((2.0/fh)*fl + cy - 1.0) + cy
+			x := s*((3.0/fw)*fk+cx-1.5) + cx
+			y := s*((2.0/fh)*fl+cy-1.0) + cy
 
 			pixels[i] = pixel{k, l, x, y}
 

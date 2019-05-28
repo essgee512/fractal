@@ -37,12 +37,13 @@ func main() {
 	// })
 
 	fractal := f.NewFractal(f.Fractal{
-		Size: 300,
+		Size:   400,
 		Center: f.Point{0.0, 0.0},
-		Scale: 1.0,
-
-		Fmap: f.Julia,
-		Cmap: f.Bool,
+		Scale:  1.0,
+		G:      5.0,
+		N:      100,
+		Fmap:   f.Julia,
+		Cmap:   f.Bool,
 	})
 
 	fractal.Render()

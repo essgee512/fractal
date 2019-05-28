@@ -6,23 +6,19 @@ import (
 	"runtime"
 )
 
-const (
-	G = float64(2)
-	N = 100
-)
-
 type Fractal struct {
-	Size    int
-	Center  Point
-	Scale   float64
+	Size   int
+	Center Point
+	Scale  float64
+	G      float64
+	N      int
+	Fmap   Fmap
+	Cmap   Cmap
 
-	Fmap    Fmap
-	Cmap    Cmap
-
-	w       int
-	h       int
-	Img     *image.NRGBA
-	pixels  []pixel
+	w      int
+	h      int
+	Img    *image.NRGBA
+	pixels []pixel
 }
 
 func NewFractal(cfg Fractal) Fractal {
@@ -30,16 +26,19 @@ func NewFractal(cfg Fractal) Fractal {
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 
 	return Fractal{
-		Size:     cfg.Size,
-		Center:   cfg.Center,
-		Scale:    cfg.Scale,
-		Fmap:     cfg.Fmap,
-		Cmap:     cfg.Cmap,
+		Size:   cfg.Size,
+		Center: cfg.Center,
+		Scale:  cfg.Scale,
+		G:      cfg.G,
+		N:      cfg.N,
 
-		w:        w,
-		h:        h,
-		Img:      img,
-		pixels:   initPixels(cfg),
+		Fmap: cfg.Fmap,
+		Cmap: cfg.Cmap,
+
+		w:      w,
+		h:      h,
+		Img:    img,
+		pixels: initPixels(cfg),
 	}
 }
 
@@ -58,8 +57,8 @@ func (f Fractal) RenderParallel() {
 	c := make(chan int, nCPU)
 
 	for i := 0; i < nCPU; i++ {
-		off := i*len(f.pixels) / nCPU
-		len := (i + 1)*len(f.pixels) / nCPU
+		off := i * len(f.pixels) / nCPU
+		len := (i + 1) * len(f.pixels) / nCPU
 
 		go f.renderSlice(off, len, c)
 	}
@@ -78,7 +77,10 @@ func (f Fractal) renderSlice(i, len int, c chan int) {
 }
 
 func (f Fractal) render(p pixel) {
-	r, g, b, a := f.Cmap(f.Fmap(complex(p.x, p.y)))
+	r, g, b, a := f.Cmap(
+		f.Fmap(complex(p.x, p.y), f),
+		f,
+	)
 	f.Img.SetNRGBA(p.k, p.l, color.NRGBA{r, g, b, a})
 }
 
