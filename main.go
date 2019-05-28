@@ -31,17 +31,17 @@ func main() {
 	var fp *os.File
 	var err error
 
-	for ps := 1; ps <= 5; ps++ {
+	for ps := 3; ps <= 3; ps++ {
 
 		fractal = f.NewFractal(f.Fractal{
 			Size:    400,
 			Center:  f.Point{0.0, 0.0},
-			Scale:   0.1,
+			Scale:   1.0,
 			PixSize: ps,
 			G:       2.0,
 			N:       100,
 			Fmap:    f.Julia,
-			Cmap:    f.Bool,
+			Cmap:    f.CoolBlue,
 		})
 
 		fractal.Render()
