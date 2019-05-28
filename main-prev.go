@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"image/png"
 	"log"
 	"os"
@@ -27,32 +26,38 @@ var (
 )
 
 func main() {
-	// fractal := f.NewFractal(f.Fractal{
-	// 	Size: 300,
-	// 	Center: f.Point{0.0, 0.0},
-	// 	Scale: 1.0,
-
-	// 	Fmap: f.Mandelbrot,
-	// 	Cmap: f.Bool,
-	// })
-
-	fractal := f.NewFractal(f.Fractal{
+	cnv := f.NewCanvas(f.CnvParams{
 		Size: 300,
 		Center: f.Point{0.0, 0.0},
 		Scale: 1.0,
-
-		Fmap: f.Julia,
-		Cmap: f.Bool,
 	})
 
-	fractal.Render()
+	m := f.NewFractal(f.Fractal{
+		Canvas: cnv,
+		Fmap: f.Mandelbrot,
+		G: 2.0,
+		N: 1000,
+		Cmap: f.ColorTrue,
+	})
+
+	m.Render()
+
+	// j := f.NewFractal(f.Fractal{
+	// 	Canvas: cnv,
+	// 	Fmap: f.Julia(−0.8 + 0.156i), // Cj
+	// 	G: 2.0,
+	// 	N: 1000,
+	// 	Cmap: f.ColorTrue,
+	// })
+
+	// j.Render()
 
 	f, err := os.Create("output/image.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := png.Encode(f, fractal.Img); err != nil {
+	if err := png.Encode(f, m.Canvas.Img); err != nil {
 		f.Close()
 		log.Fatal(err)
 	}

@@ -1,60 +1,88 @@
 package f
 
 import (
+	"image"
 	"image/color"
+	"runtime"
+)
+
+const (
+	G = float64(2)
+	N = 100
 )
 
 type Fractal struct {
-	Canvas Canvas
-	Fmap   Fmap
-	G      float64
-	N      int
-	Cmap   Cmap
+	Size    int
+	Center  Point
+	Scale   float64
+
+	Fmap    Fmap
+	Cmap    Cmap
+
+	w       int
+	h       int
+	Img     *image.NRGBA
+	pixels  []pixel
 }
 
 func NewFractal(cfg Fractal) Fractal {
+	w, h := 3*cfg.Size, 2*cfg.Size
+	img := image.NewNRGBA(image.Rect(0, 0, w, h))
+
 	return Fractal{
-		Canvas: cfg.Canvas.Prepare(),
-		Fmap:   cfg.Fmap,
-		G:      cfg.G,
-		N:      cfg.N,
-		Cmap:   cfg.Cmap,
+		Size:     cfg.Size,
+		Center:   cfg.Center,
+		Scale:    cfg.Scale,
+		Fmap:     cfg.Fmap,
+		Cmap:     cfg.Cmap,
+
+		w:        w,
+		h:        h,
+		Img:      img,
+		pixels:   initPixels(cfg),
 	}
 }
 
 func (f Fractal) Render() {
-	var numCPU = 4
-	// var numCPU = runtime.NumCPU()
-	c := make(chan int, numCPU)  // Buffering optional but sensible.
-	for i := 0; i < numCPU; i++ {
-		offset := i*len(f.Canvas.Pixels)/numCPU
-		n := (i+1)*len(f.Canvas.Pixels)/numCPU
-		go f.RenderGroup(offset, n, c)
-	}
-
-	// Drain the channel.
-	for i := 0; i < numCPU; i++ {
-		<-c    // wait for one task to complete
-	}
-	// All done.
+	f.RenderParallel()
 }
 
-func (f Fractal) RenderGroup(i, n int, c chan int) {
-	for ; i < n; i++ {
-		// f.Pixel[i].Color(f)
+func (f Fractal) RenderSerial() {
+	for _, p := range f.pixels {
+		f.render(p)
+	}
+}
 
-		k := f.Canvas.Pixels[i].K
-		l := f.Canvas.Pixels[i].L
-		x := f.Canvas.Pixels[i].X
-		y := f.Canvas.Pixels[i].Y
+func (f Fractal) RenderParallel() {
+	nCPU := runtime.NumCPU()
+	c := make(chan int, nCPU)
 
-		// color
-		z := complex(x, y)
-		r, g, b, a := f.Cmap(z, f.Fmap, f.G, f.N)
+	for i := 0; i < nCPU; i++ {
+		off := i*len(f.pixels) / nCPU
+		len := (i + 1)*len(f.pixels) / nCPU
 
-		// paint
-		f.Canvas.Img.Set(k, l, color.NRGBA{r, g, b, a})
+		go f.renderSlice(off, len, c)
 	}
 
-	c <- 1    // signal that this piece is done
+	for i := 0; i < nCPU; i++ {
+		<-c
+	}
+}
+
+func (f Fractal) renderSlice(i, len int, c chan int) {
+	for ; i < len; i++ {
+		f.render(f.pixels[i])
+	}
+
+	c <- 1
+}
+
+func (f Fractal) render(p pixel) {
+	r, g, b, a := f.Cmap(f.Fmap(complex(p.x, p.y)))
+	f.Img.SetNRGBA(p.k, p.l, color.NRGBA{r, g, b, a})
+}
+
+type Point struct {
+	X float64
+	Y float64
 }

@@ -1,8 +1,8 @@
 package f
 
-type Fmap func(z complex128, G float64, N int) int
+type Fmap func(z complex128) int
 
-func Mandelbrot(c complex128, G float64, N int) int {
+func Mandelbrot(c complex128) int {
 	z := complex(0, 0)
 	i := 0
 	rMax := G*G
@@ -19,13 +19,14 @@ func Mandelbrot(c complex128, G float64, N int) int {
 	return i
 }
 
-func Julia(z, cj complex128, G float64, N int) int {
-	i := 0
+func Julia(z complex128) int {
+	Cj := complex(-0.8, 0.156)
 	rMax := G*G
 	iMax := N
 
+	i := 0
 	for real(z)*real(z) + imag(z)*imag(z) <= rMax {
-		z = z*z + cj
+		z = z*z + Cj
 		if i == iMax {
 			break
 		}
