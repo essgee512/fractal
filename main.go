@@ -41,7 +41,7 @@ func main() {
 			G:       2.0,
 			N:       100,
 			Fmap:    f.Julia,
-			Cmap:    f.CoolBlue,
+			Cmap:    f.NewCmap(f.CoolBlue),
 		})
 
 		fractal.Render()
