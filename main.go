@@ -31,6 +31,8 @@ func main() {
 	var fp *os.File
 	var err error
 
+	N := 100
+
 	for ps := 3; ps <= 3; ps++ {
 
 		fractal = f.NewFractal(f.Fractal{
@@ -38,10 +40,16 @@ func main() {
 			Center:  f.Point{0.0, 0.0},
 			Scale:   1.0,
 			PixSize: ps,
-			G:       2.0,
-			N:       100,
-			Fmap:    f.Julia,
-			Cmap:    f.NewCmap(f.CoolBlue),
+
+			// Fmap:    f.Mandelbrot(10.0, N),
+			Fmap:    f.Julia(complex(-0.8, 0.156), 2.0, N),
+			Cmap:    f.CoolBlue(N),
+
+			// Fmap:    f.Mandelbrot(f.CoolBlue, G, N),
+			// Fmap:    f.Julia(f.CoolBlue, Cj, G, N),
+
+			// Cmap:    f.CoolBlue(f.Mandelbrot, G, N),
+			// Cmap:    f.CoolBlue(f.Julia, Cj, G, N),
 		})
 
 		fractal.Render()

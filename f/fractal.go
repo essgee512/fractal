@@ -11,8 +11,6 @@ type Fractal struct {
 	Center  Point
 	Scale   float64
 	PixSize int
-	G       float64
-	N       int
 	Fmap    Fmap
 	Cmap    Cmap
 
@@ -31,8 +29,6 @@ func NewFractal(cfg Fractal) Fractal {
 		Center:  cfg.Center,
 		Scale:   cfg.Scale,
 		PixSize: cfg.PixSize,
-		G:       cfg.G,
-		N:       cfg.N,
 
 		Fmap: cfg.Fmap,
 		Cmap: cfg.Cmap,
